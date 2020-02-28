@@ -1,0 +1,7 @@
+# Configurar Domínio
+
+abrir app/config/config.php > Configurar a bariável $config['base_url'] com o domínio
+
+# Configurar Banco de dado
+
+abrir app/config/database.php > clo9car informações do banco de dados
