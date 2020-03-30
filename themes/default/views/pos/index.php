@@ -1,4 +1,6 @@
-<?php (defined('BASEPATH')) OR exit('No direct script access allowed'); ?><!DOCTYPE html>
+<?php (defined('BASEPATH')) OR exit('No direct script access allowed'); 
+
+?><!DOCTYPE html>
 <html>
 <head>
 	<meta charset="UTF-8">
@@ -15,7 +17,7 @@
 	<link href="<?= $assets ?>dist/css/jquery-ui.css" rel="stylesheet" type="text/css" />
 	<link href="<?= $assets ?>dist/css/AdminLTE.min.css" rel="stylesheet" type="text/css" />
 	<link href="<?= $assets ?>dist/css/skins/_all-skins.min.css" rel="stylesheet" type="text/css" />
-	<link href="<?= $assets ?>dist/css/custom.css" rel="stylesheet" type="text/css" />
+	<link href="<?= $assets ?>dist/css/custom.css?v=1" rel="stylesheet" type="text/css" />
 	<script src="<?= $assets ?>plugins/jQuery/jQuery-2.1.4.min.js" type="text/javascript"></script>
 </head>
 <style>
@@ -26,6 +28,33 @@
         background: red;
         padding: 0 10px;
         margin-left: -20px;
+        cursor: pointer;
+    }
+    .product{
+        float: left;
+    }
+    .adicional{
+        float: left;
+        position: relative;
+        margin-left: -120px;
+        margin-top: 100px;
+        display: none;
+    }
+    #adicional{
+        float: left;
+        position: absolute;
+        background: gray;
+        left: 0;
+        height: 500px;
+        width: 80%;
+        display: none;
+    }
+    #fechar{
+        background: red;
+        color: white;
+        padding: 5px 10px;
+        right: 0;
+        float: right;
         cursor: pointer;
     }
 </style>
@@ -413,13 +442,16 @@
 													</div>
 												</div>
 												-->
-												<div class="col-xs-4" style="padding: 0;">
+												<div class="col-xs-3" style="padding: 0;">
+													<button type="button" class="btn btn-primary btn-block btn-flat" id="observa" style="height:67px;">Observação</button>
+												</div>
+												<div class="col-xs-3" style="padding: 0;">
 													<button type="button" class="btn btn-danger btn-block btn-flat" id="reset" style="height:67px;"><?= lang('cancel'); ?></button>
 												</div>
-												<div class="col-xs-4" style="padding: 0;">
+												<div class="col-xs-3" style="padding: 0;">
 													<button type="button" class="btn btn-warning btn-block btn-flat" id="suspend" style="height:67px;"><?= lang('hold'); ?></button>
 												</div>
-												<div class="col-xs-4" style="padding: 0;">
+												<div class="col-xs-3" style="padding: 0;">
 													<button type="button" class="btn btn-success btn-block btn-flat" id="<?= $eid ? 'submit-sale' : 'payment'; ?>" style="height:67px;"><?= $eid ? lang('submit') : lang('payment'); ?></button>
 												</div>
 											</div>
@@ -430,6 +462,7 @@
 										<input type="hidden" name="spos_note" value="" id="spos_note">
 
 										<div id="payment-conpag"></div>
+										<div id="payment-cpf"></div>
 										<div id="payment-con">
 											<input type="hidden" name="balance_amount" id="balance_val" value=""/>
 											<input type="hidden" name="cc_no" id="cc_no_val" value=""/>
@@ -654,6 +687,26 @@
 	</div>
 </div>
 
+<div class="modal" data-easein="flipYIn" id="obsModal" tabindex="-1" role="dialog" aria-labelledby="obsModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+				<h4 class="modal-title" id="susModalLabel">Observação</h4>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<?php echo form_input('observacao', $_SESSION["observacao"], 'class="form-control kb-text" id="observacao"'); ?>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal"> <?=lang('close')?> </button>
+				<button type="button" id="obs_sale" class="btn btn-primary"><?= lang('submit') ?></button>
+			</div>
+		</div>
+	</div>
+</div>
 <div class="modal" data-easein="flipYIn" id="susModal" tabindex="-1" role="dialog" aria-labelledby="susModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -719,6 +772,19 @@
 								<div class="form-group">
 									<?= lang('note', 'note'); ?>
 									<textarea name="note" id="note" class="pa form-control kb-text"></textarea>
+								</div>
+							</div>
+                                                    <input type="hidden" name="cpf" id="cpf" class="pa form-control kb-text">
+							<div class="col-xs-12">
+								<div class="form-group">
+									CPF:
+                                                                        <input type="text" name="cpfcpf" id="cpfcpf" class="pa form-control kb-text" onkeydown="javascript: fMasc( this, mCPF );">
+								</div>
+							</div>
+							<div class="col-xs-12">
+								<div class="form-group">
+									CNPJ:
+                                                                        <input type="text" name="cpfcnpj" id="cpfcnpj" class="pa form-control kb-text" onkeydown="javascript: fMasc( this, mCNPJ );">
 								</div>
 							</div>
 							<div class="col-xs-5">
@@ -886,7 +952,12 @@
     }
 </script>
 <?php } ?>
-<script src="<?= $assets ?>dist/js/pos.js" type="text/javascript"></script>
+<script src="<?= $assets ?>dist/js/pos.js?v=93" type="text/javascript"></script>
+<?php
+//echo '<pre>';
+//print_r($_SESSION);
+
+?>
 <script type="text/javascript">
 	var base_url = '<?=base_url();?>', assets = '<?= $assets ?>';
 	var dateformat = '<?=$Settings->dateformat;?>', timeformat = '<?= $Settings->timeformat ?>';
@@ -932,6 +1003,16 @@
 	lang['grand_total'] = '<?= lang('grand_total'); ?>';
 
 	$(document).ready(function() {
+            $(document).on('blur', '#cpfcpf', function(){
+                var valor = $(this).val();
+                $('#cpf').val(valor);
+                $('#cpfcnpj').val('');
+            });
+            $(document).on('blur', '#cpfcnpj', function(){
+                var valor = $(this).val();
+                $('#cpf').val(valor);
+                $('#cpfcpf').val('');
+            });
 		posScreen();
 		<?php if($this->session->userdata('rmspos')) { ?>
 		if (get('spositems')) { remove('spositems'); }
@@ -1001,7 +1082,58 @@
 		<?php } ?>
 	});
 </script>
-
+<script type="text/javascript">
+			function fMasc(objeto,mascara) {
+				obj=objeto
+				masc=mascara
+				setTimeout("fMascEx()",1)
+			}
+			function fMascEx() {
+				obj.value=masc(obj.value)
+			}
+			function mTel(tel) {
+				tel=tel.replace(/\D/g,"")
+				tel=tel.replace(/^(\d)/,"($1")
+				tel=tel.replace(/(.{3})(\d)/,"$1)$2")
+				if(tel.length == 9) {
+					tel=tel.replace(/(.{1})$/,"-$1")
+				} else if (tel.length == 10) {
+					tel=tel.replace(/(.{2})$/,"-$1")
+				} else if (tel.length == 11) {
+					tel=tel.replace(/(.{3})$/,"-$1")
+				} else if (tel.length == 12) {
+					tel=tel.replace(/(.{4})$/,"-$1")
+				} else if (tel.length > 12) {
+					tel=tel.replace(/(.{4})$/,"-$1")
+				}
+				return tel;
+			}
+			function mCNPJ(cnpj){
+				cnpj=cnpj.replace(/\D/g,"")
+				cnpj=cnpj.replace(/^(\d{2})(\d)/,"$1.$2")
+				cnpj=cnpj.replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3")
+				cnpj=cnpj.replace(/\.(\d{3})(\d)/,".$1/$2")
+				cnpj=cnpj.replace(/(\d{4})(\d)/,"$1-$2")
+				return cnpj
+			}
+			function mCPF(cpf){
+				cpf=cpf.replace(/\D/g,"")
+				cpf=cpf.replace(/(\d{3})(\d)/,"$1.$2")
+				cpf=cpf.replace(/(\d{3})(\d)/,"$1.$2")
+				cpf=cpf.replace(/(\d{3})(\d{1,2})$/,"$1-$2")
+				return cpf
+			}
+			function mCEP(cep){
+				cep=cep.replace(/\D/g,"")
+				cep=cep.replace(/^(\d{2})(\d)/,"$1.$2")
+				cep=cep.replace(/\.(\d{3})(\d)/,".$1-$2")
+				return cep
+			}
+			function mNum(num){
+				num=num.replace(/\D/g,"")
+				return num
+			}
+		</script>
 
 
 

@@ -474,18 +474,50 @@ $(document).ready(function(){
         return false;
     });
 
-    $(document).on('click', '.product', function (e) {
+    $(document).on('click', '.adicional', function () {
+        $("#adicional").show();
+        var produto = $(this).attr('data-produto');
+        $(".adicionalP").attr('adicionalP',produto);
+    });
+    $(document).on('click', '#fechar', function () {
+        $("#adicional").hide();
+    });
+    $(document).on('click', '.product', function () {
+        var ctx = $(this);
+        $(".adicional").hide();
+        
+        var id = $(this).attr('data-id');
         code = $(this).val();
+        
+        if ($(this).hasClass("adicionalP")) {
+            var adicional = $(".adicionalP").attr('adicionalP');
+            if(adicional){
+//                alert('aaaaaa');
+            }
+        }
+        
         $.ajax({
             type: "get",
             url: base_url+'pos/get_product/'+code,
             dataType: "json",
             success: function (data) {
                 if (data !== null) {
-                    add_invoice_item(data);
+                    add_invoice_item(data, adicional);
                 } else {
                     bootbox.alert(lang.no_match_found);
                 }
+            }
+        });
+        $.ajax({
+            type: "get",
+            url: base_url+'pos/get_adicional/'+id,
+            success: function (data) {
+                console.log(data);
+                if(data){
+                    ctx.next().show();
+                    $("#adicional").html(data);
+                }
+                
             }
         });
     });
@@ -714,6 +746,14 @@ $(document).ready(function(){
         return false;
     });
 
+    $('#observa').click(function () {
+        if (count <= 1) {
+            bootbox.alert(lang.please_add_product);
+            return false;
+        } else {
+            $('#obsModal').modal({backdrop:'static'});
+        }
+    });
     $('#suspend').click(function () {
         if (count <= 1) {
             bootbox.alert(lang.please_add_product);
@@ -723,6 +763,22 @@ $(document).ready(function(){
         }
     });
 
+    $('#obs_sale').click(function () {
+        var observacao = $('#observacao').val();
+        if (!observacao || observacao == '') {
+            bootbox.alert('Descreva a observação');
+            return false;
+        } else {
+            $.ajax({
+                type: "get", async: false,
+                url: base_url + "pos/observacao/" + observacao,
+                data: {observacao:observacao},
+                success: function (data) {
+                    bootbox.alert('Salvo com sucesso!');
+                }
+            });
+        }
+    });
     $('#suspend_sale').click(function () {
         ref = $('#reference_note').val();
         if (!ref || ref == '') {
@@ -832,7 +888,9 @@ $(document).ready(function(){
         });
         $(".paid_by").each(function(){
             $('#payment-conpag').append('<input type="hidden" name="paid_by[]" value="'+$(this).val()+'"/>');
+            
         });
+        $('#payment-cpf').append('<input type="hidden" name="cpf" value="'+$('#cpf').val()+'"/>');
         $('#submit').click();
     });
     

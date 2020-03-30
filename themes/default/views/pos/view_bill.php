@@ -80,6 +80,10 @@
                     <td><h2><b>C O N T A</b></h2></td>
                 </tr>
             </table>
+            <?php if($_SESSION["observacao"]){?>
+            <p><b>Observação</b></p>
+            <p><?=$_SESSION["observacao"]?></p>
+            <?php }?>
             <table style="margin-bottom: 0;" id="billTable" class="table table-striped table-condensed">
                 <thead>
                 <tr>

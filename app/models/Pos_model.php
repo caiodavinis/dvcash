@@ -314,6 +314,19 @@ class Pos_model extends CI_Model
         }
         return false;
     }
+    public function fetch_adicional($id_ad) {
+        $this->db->where('id_ad', $id_ad);
+        $this->db->order_by("code", "asc");
+        $query = $this->db->get("products");
+
+        if ($query->num_rows() > 0) {
+            foreach ($query->result() as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return false;
+    }
 
     public function registerData($user_id)
     {

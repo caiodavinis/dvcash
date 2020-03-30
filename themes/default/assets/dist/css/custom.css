@@ -215,14 +215,14 @@
     display: block;
     width: 110px;
     background: #E5E5E5;
-    height: 40px;
+    height: auto;
     overflow: hidden;
     white-space: pre-wrap;
     margin-left: 1px;
 }
 .pos .contents #item-list .btn-both span span {
     display: table-cell;
-    vertical-align: middle;;
+    vertical-align: middle;
     overflow: hidden;
     white-space: pre-wrap;
     line-height: 16px;

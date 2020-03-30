@@ -68,7 +68,33 @@ if ($modal) {
                 <?= $Settings->header; ?>
                 <p>
                 <?= lang('sale').' '.lang('no').': '.$inv->id; ?> | <?= lang("customer").': '. $inv->customer_name; ?></br><?= lang("date").': '.$this->tec->hrld($inv->date); ?>
+                <?php
+                $cnpj = explode('/',$inv->cpf);
+                if(count($cnpj) > 0){
+                    echo ($inv->cpf ? '<br>CNPJ: '.$inv->cpf : '');
+                }else{
+                    echo ($inv->cpf ? '<br>CPF: '.$inv->cpf : '');
+                }
+                 
+                ?>
                 </p>
+                <?php
+                if($inv->observacao){
+                    echo '<table class="table table-striped table-condensed"><tbody>';
+                            echo '<tr>';
+                                echo '<td style="    width: 100%;
+    float: left;
+    text-align: center;" class="tdpag"><font size="2" /><b>Observação</b></td>';
+                                echo '<td style="width: 100%;
+    float: left;
+    text-align: center;
+    border: none;
+    margin-top: -10px;" class="tdpag2"><font size="2" />' . str_replace('%20',' ',$inv->observacao). '</td>';
+                            echo '</tr>';
+                        echo '</tbody></table>';
+                }
+                
+                ?>
             <div style="clear:both;"></div>
             <table class="table table-striped table-condensed">
                 <thead>
@@ -117,8 +143,9 @@ if ($modal) {
                 if ($inv->total_discount != 0) {
                     echo '<tr><th colspan="2">' . lang("order_discount") . '</th><th colspan="2" class="text-right"><font size="1" />' . $this->tec->formatMoney($inv->total_discount) . '</th></tr>';
                 }
+                $total = $inv->total - $inv->total_discount;
                 if ($inv->total_discount != 0 OR $inv->order_tax != 0) {
-                    echo '<tr><th colspan="2">' . lang("grand_total") . '</th><th colspan="2" class="text-right"><font size="1" />' .  $this->tec->formatMoney($inv->total) . '</th></tr>';
+                    echo '<tr><th colspan="2">' . lang("grand_total") . '</th><th colspan="2" class="text-right"><font size="1" />' .  $this->tec->formatMoney($total) . '</th></tr>';
                 }
 
                 /**
@@ -159,7 +186,9 @@ if ($modal) {
             if ($payments) {
                 echo '<h1 style="font-size: 16px;">FORMA(S) DE PAGAMENTO(S)</h1>';
                 echo '<table class="table table-striped table-condensed"><tbody>';
+                $total_pago = 0;
                 foreach ($payments as $payment) {
+                    $total_pago += $this->tec->formatMoney($payment->pos_paid == 0 ? $payment->amount : $payment->pos_paid);
                     if ($payment->paid_by == 'cash' && $payment->pos_paid) {
                         echo '<table class="table table-striped table-condensed"><tbody>';
                             echo '<tr>';
@@ -222,7 +251,7 @@ if ($modal) {
                 echo '<table style="margin-top: 25px !important;" class="table table-striped table-condensed"><tbody>
                              <tr>
                                  <td class="tdpag"><font size="2" /><b>TOTAL PAGO </b></td>
-                                 <td class="tdpag2"><font size="2" />R$ './*$this->tec->formatMoney($inv->total + $inv->order_tax - $inv->total_discount)*/ $this->tec->formatMoney($inv->total) . '</td>
+                                 <td class="tdpag2"><font size="2" />R$ './*$this->tec->formatMoney($inv->total + $inv->order_tax - $inv->total_discount)*/ $this->tec->formatMoney($total_pago) . '</td>
                              </tr>
                          </tbody></table>';
                 echo $troco;

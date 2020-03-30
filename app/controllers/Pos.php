@@ -192,12 +192,15 @@ class Pos extends MY_Controller {
 				'paid' => $paid,
 				'status' => $status,
 				'created_by' => $this->session->userdata('user_id'),
-				'note' => $note
+				'note' => $note,
+				'cpf' => $this->input->post('cpf'),
+				'observacao' => $_SESSION["observacao"]
 				);
+                        unset($_SESSION["observacao"]);
 			if($suspend) {
 				$data['hold_ref'] = $this->input->post('hold_ref');
 			}
-
+                        
 			if (!$suspend && $paid) {
                             $amo = 0;
                             $amountIT = 0;
@@ -313,6 +316,7 @@ class Pos extends MY_Controller {
 					$pr[$ri] = array('id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")", 'row' => $row, 'combo_items' => $combo_items);
 					$c++;
 				}
+                                $_SESSION["observacao"] = str_replace('%20',' ',$suspended_sale->observacao);
 				$this->data['items'] = json_encode($pr);
 				$this->data['sid'] = $sid;
 				$this->data['suspend_sale'] = $suspended_sale;
@@ -388,6 +392,23 @@ class Pos extends MY_Controller {
 		} else {
 			echo NULL;
 		}
+
+	}
+	function get_adicional($code = NULL) {
+          
+		$products_adic = $this->pos_model->fetch_adicional($code);
+
+                if($products_adic){
+                    $prods = '<span id="fechar">X</span>';
+                    foreach($products_adic as $product) {
+                            $count = $product->id;
+                            if($count < 10) { $count = "0".($count /100) *100;  }
+                            if($category_id < 10) { $category_id = "0".($category_id /100) *100;  }
+                            $prods .= "<span><button type=\"button\" data-name=\"".$product->name."\" id=\"product-".$category_id.$count."\" type=\"button\" value='".$product->code."' class=\"btn btn-both btn-flat product adicionalP\"><span class=\"bg-img\"><img src=\"".base_url()."uploads/thumbs/".$product->image."\" alt=\"".$product->name."\" style=\"width: 100px; height: 100px;\"></span><span><span>".$product->name."</span></span></button></span>";
+                            $pro++;
+                    }
+                }
+                echo $prods;
 
 	}
 
@@ -520,6 +541,7 @@ class Pos extends MY_Controller {
 		if($this->input->get('tcp') == 1 ) { $tcp = TRUE; } else { $tcp = FALSE; }
 
 		$products = $this->pos_model->fetch_products($category_id, $this->Settings->pro_limit, $page);
+		$products_adic = $this->pos_model->fetch_products('10000', $this->Settings->pro_limit, $page);
 		$pro = 1;
 		$prods = "<div>";
 		if($products) {
@@ -528,7 +550,7 @@ class Pos extends MY_Controller {
 					$count = $product->id;
 					if($count < 10) { $count = "0".($count /100) *100;  }
 					if($category_id < 10) { $category_id = "0".($category_id /100) *100;  }
-					$prods .= "<button type=\"button\" data-name=\"".$product->name."\" id=\"product-".$category_id.$count."\" type=\"button\" value='".$product->code."' class=\"btn btn-name btn-default btn-flat product\">".$product->name."</button>";
+					$prods .= "<button type=\"button\" data-name=\"".$product->name."\" data-id=\"".$product->id."\" id=\"product-".$category_id.$count."\" type=\"button\" value='".$product->code."' class=\"btn btn-name btn-default btn-flat product\">".$product->name."</button>";
 					$pro++;
 				}
 			} elseif($this->Settings->bsty == 2) {
@@ -536,7 +558,7 @@ class Pos extends MY_Controller {
 					$count = $product->id;
 					if($count < 10) { $count = "0".($count /100) *100;  }
 					if($category_id < 10) { $category_id = "0".($category_id /100) *100;  }
-					$prods .= "<button type=\"button\" data-name=\"".$product->name."\" id=\"product-".$category_id.$count."\" type=\"button\" value='".$product->code."' class=\"btn btn-img btn-flat product\"><img src=\"".base_url()."uploads/thumbs/".$product->image."\" alt=\"".$product->name."\" style=\"width: 110px; height: 110px;\"></button>";
+					$prods .= "<button type=\"button\" data-name=\"".$product->name."\" data-id=\"".$product->id."\" id=\"product-".$category_id.$count."\" type=\"button\" value='".$product->code."' class=\"btn btn-img btn-flat product\"><img src=\"".base_url()."uploads/thumbs/".$product->image."\" alt=\"".$product->name."\" style=\"width: 110px; height: 110px;\"></button>";
 					$pro++;
 				}
 			} elseif($this->Settings->bsty == 3) {
@@ -544,9 +566,18 @@ class Pos extends MY_Controller {
 					$count = $product->id;
 					if($count < 10) { $count = "0".($count /100) *100;  }
 					if($category_id < 10) { $category_id = "0".($category_id /100) *100;  }
-					$prods .= "<button type=\"button\" data-name=\"".$product->name."\" id=\"product-".$category_id.$count."\" type=\"button\" value='".$product->code."' class=\"btn btn-both btn-flat product\"><span class=\"bg-img\"><img src=\"".base_url()."uploads/thumbs/".$product->image."\" alt=\"".$product->name."\" style=\"width: 100px; height: 100px;\"></span><span><span>".$product->name."</span></span></button>";
+					$prods .= "<span><button type=\"button\" data-name=\"".$product->name."\" data-id=\"".$product->id."\" id=\"product-".$category_id.$count."\" type=\"button\" value='".$product->code."' class=\"btn btn-both btn-flat product\"><span class=\"bg-img\"><img src=\"".base_url()."uploads/thumbs/".$product->image."\" alt=\"".$product->name."\" style=\"width: 100px; height: 100px;\"></span><span><span>".$product->name."</span></span><p><button data-produto='" . $product->id . "' data-target='#subitemModal' data-toggle='modal' class='btn btn-xs btn-flat btn-primary adicional' type='button'> <i class='fa fa-list'></i> Adicional</button></p></button></span>";
 					$pro++;
 				}
+                                $prods .= "<span id=\"adicional\">";
+//				foreach($products_adic as $product) {
+//					$count = $product->id;
+//					if($count < 10) { $count = "0".($count /100) *100;  }
+//					if($category_id < 10) { $category_id = "0".($category_id /100) *100;  }
+//					$prods .= "<span><button type=\"button\" data-name=\"".$product->name."\" id=\"product-".$category_id.$count."\" type=\"button\" value='".$product->code."' class=\"btn btn-both btn-flat product adicionalP\"><span class=\"bg-img\"><img src=\"".base_url()."uploads/thumbs/".$product->image."\" alt=\"".$product->name."\" style=\"width: 100px; height: 100px;\"></span><span><span>".$product->name."</span></span></button></span>";
+//					$pro++;
+//				}
+                                $prods .= "</span>";
 			}
 		} else {
 			$prods .= '<h4 class="text-center text-info" style="margin-top:50px;">'.lang('category_is_empty').'</h4>';
@@ -698,6 +729,10 @@ class Pos extends MY_Controller {
         redirect($_SERVER["HTTP_REFERER"]);
     }
 
+    function observacao($no)
+    {
+        $_SESSION["observacao"] = str_replace('%20',' ',$no);
+    }
     function validate_gift_card($no)
     {
         if ($gc = $this->pos_model->getGiftCardByNO(urldecode($no))) {

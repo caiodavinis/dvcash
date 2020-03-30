@@ -64,10 +64,10 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'semedweb',
-	'password' => 'key!databaseadmin',
-	'database' => 'caio_dvcash',
+	'hostname' => 'pdvverde.mysql.dbaas.com.br',
+	'username' => 'pdvverde',
+	'password' => 'Marques25',
+	'database' => 'pdvverde',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => 'tec_',
 	'pconnect' => FALSE,

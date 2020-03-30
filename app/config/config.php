@@ -17,7 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | environments.
 |
 */
-$config['base_url'] = 'http://localhost/dvcash/';
+$config['base_url'] = 'http://pdvverde.comercial.ws';
 
 /*
 |--------------------------------------------------------------------------

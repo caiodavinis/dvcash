@@ -1,4 +1,114 @@
-<?php (defined('BASEPATH')) OR exit('No direct script access allowed'); ?>
+<?php (defined('BASEPATH')) OR exit('No direct script access allowed'); 
+
+
+if($_REQUEST['adic']){
+
+
+?>
+
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-primary">
+                <div class="box-header">
+                    <h3 class="box-title"><?= lang('enter_info'); ?></h3>
+                </div>
+                <div class="box-body">
+                    <div class="col-lg-12">
+                        <?= form_open_multipart("products/add", 'class="validation"');?>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="hidden" name="name" id="nameF" value="standard" />
+                                <input type="hidden" name="type" value="standard" />
+                                <input type="hidden" name="category" value="10000" />
+                                <input type="hidden" name="id_ad" value="<?=$_REQUEST['adic']?>" />
+                                <div class="form-group">
+                                    
+                                    <?= lang('name', 'name'); ?>
+                                    <input type="text" name="nameF" value="" class="form-control tip" id="nameadic" required="required" data-fv-field="name">
+                                </div>
+                                <div class="form-group">
+                                    <?= lang('code', 'code'); ?> <?= lang('can_use_barcode'); ?>
+                                    <?= form_input('code', set_value('code'), 'class="form-control tip" id="code"  required="required"'); ?>
+                                </div>
+
+                                <div class="form-group">
+                                    <?= lang('cost', 'cost'); ?>
+                                    <?= form_input('cost', set_value('cost'), 'class="form-control tip" id="cost"  required="required"'); ?>
+                                </div>
+
+                                <div class="form-group">
+                                    <?= lang('price', 'price'); ?>
+                                    <?= form_input('price', set_value('price'), 'class="form-control tip" id="price"  required="required"'); ?>
+                                </div>
+
+                                <div class="form-group">
+                                    <?= lang('product_tax', 'product_tax'); ?> <?= lang('external_percentage'); ?>
+                                    <?= form_input('product_tax', set_value('product_tax', 0), 'class="form-control tip" id="product_tax"  required="required"'); ?>
+                                </div>
+                                <div class="form-group">
+                                    <?= lang('tax_method', 'tax_method'); ?>
+                                    <?php $tm = array(0 => lang('inclusive'), 1 => lang('exclusive')); ?>
+                                    <?= form_dropdown('tax_method', $tm, set_value('tax_method'), 'class="form-control tip select2" id="tax_method"  required="required" style="width:100%;"'); ?>
+                                </div>
+                                <div class="form-group" id="st">
+                                    <?= lang('quantity', 'quantity'); ?>
+                                    <?= form_input('quantity', set_value('quantity', 0), 'class="form-control tip" id="quantity"  required="required"'); ?>
+                                </div>
+                                <div class="form-group" id="st">
+                                    <?= lang('alert_quantity', 'alert_quantity'); ?>
+                                    <?= form_input('alert_quantity', set_value('alert_quantity', 0), 'class="form-control tip" id="alert_quantity"  required="required"'); ?>
+                                </div>
+
+                                <div class="form-group">
+                                    <?= lang('image', 'image'); ?>
+                                    <input type="file" name="userfile" id="image">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div id="ct" style="display:none;">
+
+                                    <div class="form-group">
+                                        <?= lang("add_product", "add_item"); ?>
+                                        <?php echo form_input('add_item', '', 'class="form-control ttip" id="add_item" data-placement="top" data-trigger="focus" data-bv-notEmpty-message="' . lang('please_add_items_below') . '" placeholder="' . $this->lang->line("add_item") . '"'); ?>
+                                    </div>
+                                    <div class="control-group table-group">
+                                        <label class="table-label" for="combo"><?= lang("combo_products"); ?></label>
+
+                                        <div class="controls table-controls">
+                                            <table id="prTable"
+                                                   class="table items table-striped table-bordered table-condensed table-hover">
+                                                <thead>
+                                                <tr>
+                                                    <th class="col-xs-9"><?= lang("product_name") . " (" . $this->lang->line("product_code") . ")"; ?></th>
+                                                    <th class="col-xs-2"><?= lang("quantity"); ?></th>
+                                                    <th class=" col-xs-1 text-center"><i class="fa fa-trash-o trash-opacity-50"></i></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <?= lang('details', 'details'); ?>
+                            <?= form_textarea('details', set_value('details'), 'class="form-control tip redactor" id="details"'); ?>
+                        </div>
+                        <div class="form-group">
+                            <?= form_submit('add_product', lang('add_product'), 'class="btn btn-primary"'); ?>
+                        </div>
+                        <?= form_close();?>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<?php }else{ ?>
 
 <section class="content">
     <div class="row">
@@ -121,6 +231,8 @@
     </div>
 </section>
 
+<?php }?>
+
 <script src="<?= $assets ?>dist/js/jquery-ui.min.js" type="text/javascript"></script>
 <script type="text/javascript" charset="utf-8">
     var price = 0; cost = 0; items = {};
@@ -191,6 +303,11 @@
             var id = $(this).attr('id');
             delete items[id];
             $(this).closest('#row_' + id).remove();
+        });
+        $(document).on('blur', '#nameadic', function () {
+            var valor = $(this).val();
+            var nome = valor+" - Adicional: <?=$product->name?>";
+            $("#nameF").val(nome);
         });
 
 
